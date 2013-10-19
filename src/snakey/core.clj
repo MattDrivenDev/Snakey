@@ -1,18 +1,23 @@
 (ns snakey.core
   (:gen-class))
 
-
 (defrecord Rect [x y width height])
 
-(defn rect [x y] 
+(defn rect [x y]
   (Rect. x y 10 10))
 
-(defn debug-rect [{:keys [x y width height]}]
-  (str "Rect {x=" x ";y=" y ";width=" width ";height=" height ";}"))
+(defn reduce-bools [coll]
+  (loop [coll coll
+         acc  true]
+    (if (= coll [])
+      acc
+      (recur (rest coll) (if (first coll) acc false)))))
 
-(defn debug-snakey [[direction body]]
-  [(str "Snakey is travelling '" direction "'")
-   (map debug-rect body)])
+(defn rects-intersect? [a b]
+  (reduce-bools [(>= (+ (:x a) (:width a)) (:x b))
+                 (>= (+ (:x b) (:width b)) (:x a))
+                 (>= (+ (:y a) (:height a)) (:y b))
+                 (>= (+ (:y b) (:height b)) (:y a))]))
 
 (defn create-new-head [direction {:keys [x y]}]
   (case direction
@@ -28,9 +33,8 @@
   (pop body))
 
 (defn move-forwards [[direction body]]
-  (push-new-head
-     direction
-     (pop-tail-end body)))
+  (push-new-head direction
+    (pop-tail-end body)))
 
 
 
